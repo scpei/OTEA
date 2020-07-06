@@ -341,3 +341,23 @@ class TFParts(object):
                 self.g_rmsprop = tf.train.RMSPropOptimizer(learning_rate=5e-5).minimize(self.disc_loss_gen, var_list=[M, ht1])
 
             self.d_clip = [v.assign(tf.clip_by_value(v, -0.01, 0.01)) for v in disc_vars1]
+
+            with tf.variable_scope("adversarial_2"):
+                self.disc_input_h2 = tf.placeholder(tf.int64, shape=[self._batch_sizeH], name='disc_input_h2')
+                self.disc_input_l2 = tf.placeholder(tf.int64, shape=[self._batch_sizeH], name='disc_input_l2')
+                self.disc_input_h2_emb = tf.nn.l2_normalize(tf.nn.embedding_lookup(self._ht2, self.disc_input_h2), 1)
+                self.disc_input_l2_emb = tf.nn.l2_normalize(tf.nn.embedding_lookup(self._ht1, self.disc_input_l2), 1)
+                self.disc_input_Mh2_emb = tf.matmul(self.disc_input_h2_emb, M2)
+                self.disc_h2 = discriminator(self.disc_input_Mh2_emb, weights2, biases2)
+                self.disc_l2 = discriminator(self.disc_input_l2_emb, weights2, biases2)
+
+                self.disc_loss_gen_2 = - tf.reduce_mean(self.disc_h2)
+                self.disc_loss_dis_2 = - tf.reduce_mean(self.disc_l2) + tf.reduce_mean(self.disc_h2)
+
+            disc_vars2 = [weights2['disc_hidden1'], weights2['disc_out'],
+                          biases2['disc_hidden1'], biases2['disc_out']]
+            with tf.control_dependencies(tf.get_collection(tf.GraphKeys.UPDATE_OPS)):
+                self.d_rmsprop_2 = tf.train.RMSPropOptimizer(learning_rate=5e-5).minimize(self.disc_loss_dis_2, var_list = disc_vars2)
+                self.g_rmsprop_2 = tf.train.RMSPropOptimizer(learning_rate=5e-5).minimize(self.disc_loss_gen_2, var_list = [M2, ht2])
+
+            self.d_clip_2 = [v.assign(tf.clip_by_value(v, -0.01, 0.01)) for v in disc_vars2]
