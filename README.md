@@ -1,5 +1,9 @@
 # Improving Cross-lingual Entity Alignment via Optimal Transport
 
+The study in this paper is to address two limitations that widely exist in current solutions: 
+1) the alignment loss functions defined at the entity level serve well the purpose of aligning labeled entities but fail to match the whole picture of labeled and unlabeled entities in different KGs; 
+2) the translation from one domain to the other has been considered (e.g., X to Y by M1 or Y to X by M2).
+
 The implementation is based on the code and data of MTransE.
 
 Contact: Shichao Pei (shichao.pei@kaust.edu.sa)
